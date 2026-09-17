@@ -1,0 +1,596 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Lander Lluvia — Backend Developer</title>
+<meta name="description" content="Lander Lluvia, backend software developer specialised in Java, Spring Boot, Python and REST API design." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%A7%EF%B8%8F%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --paper:#EFF1EA;
+    --surface:#E5E8DF;
+    --ink:#14181C;
+    --ink-soft:#4B5450;
+    --line:#CDD2C6;
+    --accent:#285C51;
+    --accent-soft:#DCE6E1;
+    --radius:3px;
+    --sans:'IBM Plex Sans', system-ui, sans-serif;
+    --mono:'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --paper:#14181C;
+      --surface:#1B2024;
+      --ink:#E9EBE4;
+      --ink-soft:#9AA3A0;
+      --line:#2A3130;
+      --accent:#7BC3AC;
+      --accent-soft:#1E2C28;
+    }
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
+  }
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:16px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--accent); text-decoration:none;}
+  a:hover{text-decoration:underline;}
+  a:focus-visible, button:focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:2px;
+    border-radius:2px;
+  }
+  .shell{
+    display:grid;
+    grid-template-columns:230px 1fr;
+    max-width:1080px;
+    margin:0 auto;
+    min-height:100vh;
+  }
+  /* sidebar */
+  .sidebar{
+    border-right:1px solid var(--line);
+    padding:40px 24px;
+    position:sticky;
+    top:0;
+    align-self:start;
+    height:100vh;
+    overflow-y:auto;
+  }
+  .brand{
+    font-family:var(--mono);
+    font-size:15px;
+    font-weight:500;
+    margin:0 0 28px;
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+  }
+  .brand .drop{font-size:14px;}
+  .nav-list{
+    list-style:none;
+    margin:0;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+  }
+  .nav-list a{
+    display:flex;
+    gap:8px;
+    align-items:baseline;
+    font-family:var(--mono);
+    font-size:13px;
+    color:var(--ink-soft);
+    padding:6px 8px;
+    margin:0 -8px;
+    border-radius:var(--radius);
+  }
+  .nav-list a .method{
+    color:var(--accent);
+    font-weight:600;
+  }
+  .nav-list a:hover, .nav-list a.active{
+    background:var(--surface);
+    color:var(--ink);
+    text-decoration:none;
+  }
+  .sidebar-foot{
+    margin-top:32px;
+    padding-top:20px;
+    border-top:1px solid var(--line);
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--ink-soft);
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .sidebar-foot a{color:var(--ink-soft);}
+  .sidebar-foot a:hover{color:var(--accent);}
+
+  /* mobile top nav */
+  .topbar{display:none;}
+
+  main{
+    padding:56px 48px 80px;
+    max-width:720px;
+  }
+
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    font-family:var(--mono);
+    font-size:12px;
+    padding:2px 7px;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    color:var(--ink-soft);
+  }
+  .badge.status{color:var(--accent); border-color:var(--accent-soft); background:var(--accent-soft);}
+  .endpoint-tag{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    margin-bottom:14px;
+  }
+
+  /* hero */
+  .hero{padding-bottom:36px; border-bottom:1px solid var(--line); margin-bottom:48px;}
+  .hero .req{
+    font-family:var(--mono);
+    font-size:13px;
+    color:var(--ink-soft);
+    margin:0 0 6px;
+  }
+  .hero .req .verb{color:var(--accent); font-weight:600;}
+  @media (prefers-reduced-motion: no-preference){
+    .hero .resp{
+      overflow:hidden;
+      white-space:nowrap;
+      animation:reveal 900ms steps(28,end) 200ms both;
+    }
+  }
+  @keyframes reveal{from{width:0}to{width:100%}}
+  .hero .resp{
+    font-family:var(--mono);
+    font-size:13px;
+    color:var(--accent);
+    margin:0 0 22px;
+    max-width:280px;
+  }
+  h1{
+    font-size:2.15rem;
+    line-height:1.15;
+    margin:0 0 6px;
+    letter-spacing:-0.01em;
+  }
+  .role{
+    font-size:1.05rem;
+    color:var(--ink-soft);
+    margin:0 0 22px;
+    font-weight:500;
+  }
+  .contact-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:0;
+    font-size:14px;
+    margin-bottom:22px;
+  }
+  .contact-row a, .contact-row span{
+    padding:0 14px;
+    border-left:1px solid var(--line);
+    color:var(--ink-soft);
+  }
+  .contact-row a:first-child, .contact-row span:first-child{
+    padding-left:0;
+    border-left:none;
+  }
+  .contact-row a{color:var(--ink);}
+  .contact-row a:hover{color:var(--accent);}
+  .lede{
+    font-size:1.02rem;
+    color:var(--ink);
+    max-width:62ch;
+  }
+
+  section{margin-bottom:52px;}
+  section h2{
+    font-size:1.15rem;
+    margin:0 0 18px;
+    font-weight:600;
+  }
+
+  .role-card{
+    padding:20px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .role-card:last-child{border-bottom:none;}
+  .role-card .rc-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:16px;
+    flex-wrap:wrap;
+    margin-bottom:4px;
+  }
+  .role-card h3{
+    font-size:1rem;
+    margin:0;
+    font-weight:600;
+  }
+  .role-card .dates{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--ink-soft);
+    white-space:nowrap;
+  }
+  .role-card .org{
+    color:var(--ink-soft);
+    font-size:14px;
+    margin:0 0 10px;
+  }
+  .role-card ul{
+    margin:0;
+    padding-left:18px;
+  }
+  .role-card li{margin-bottom:6px; font-size:14.5px;}
+  .role-card .stack{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--accent);
+  }
+
+  .edu-item{
+    display:flex;
+    justify-content:space-between;
+    gap:16px;
+    padding:14px 0;
+    border-bottom:1px solid var(--line);
+    flex-wrap:wrap;
+  }
+  .edu-item:last-child{border-bottom:none;}
+  .edu-item .school{font-weight:600; font-size:14.5px;}
+  .edu-item .deg{color:var(--ink-soft); font-size:13.5px;}
+  .edu-item .when{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--ink-soft);
+    white-space:nowrap;
+  }
+
+  .skill-groups{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px 32px;
+  }
+  @media (max-width:520px){.skill-groups{grid-template-columns:1fr;}}
+  .skill-group h4{
+    margin:0 0 8px;
+    font-size:13px;
+    color:var(--ink-soft);
+    font-weight:500;
+  }
+  .chips{display:flex; flex-wrap:wrap; gap:6px;}
+  .chip{
+    font-family:var(--mono);
+    font-size:12.5px;
+    padding:3px 8px;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    color:var(--ink);
+  }
+
+  .project-card{
+    padding:16px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .project-card:last-child{border-bottom:none;}
+  .project-card .pc-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:12px;
+  }
+  .project-card a.name{font-weight:600; font-size:14.5px;}
+  .project-card .lang{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--ink-soft);
+  }
+  .project-card .note{font-size:13.5px; color:var(--ink-soft); margin:4px 0 0;}
+  .more-projects{font-size:14px; margin-top:16px;}
+
+  .contact-block{
+    padding:22px;
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    background:var(--surface);
+  }
+  .contact-list{
+    list-style:none;
+    margin:0;
+    padding:0;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    font-size:14.5px;
+  }
+  .contact-list .k{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--ink-soft);
+    width:70px;
+    display:inline-block;
+  }
+
+  footer{
+    padding:24px 48px 48px;
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--ink-soft);
+  }
+
+  @media (max-width:820px){
+    .shell{grid-template-columns:1fr;}
+    .sidebar{display:none;}
+    .topbar{
+      display:flex;
+      position:sticky;
+      top:0;
+      z-index:5;
+      background:var(--paper);
+      border-bottom:1px solid var(--line);
+      overflow-x:auto;
+      gap:4px;
+      padding:14px 20px;
+    }
+    .topbar a{
+      font-family:var(--mono);
+      font-size:12.5px;
+      color:var(--ink-soft);
+      padding:6px 10px;
+      border-radius:var(--radius);
+      white-space:nowrap;
+    }
+    .topbar a.active, .topbar a:hover{background:var(--surface); color:var(--ink); text-decoration:none;}
+    main{padding:40px 20px 64px;}
+    footer{padding:20px 20px 40px;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="topbar" aria-label="Sections">
+  <a href="#profile" class="nav-link">/profile</a>
+  <a href="#experience" class="nav-link">/experience</a>
+  <a href="#education" class="nav-link">/education</a>
+  <a href="#projects" class="nav-link">/projects</a>
+  <a href="#skills" class="nav-link">/skills</a>
+  <a href="#contact" class="nav-link">/contact</a>
+</nav>
+
+<div class="shell">
+  <aside class="sidebar">
+    <p class="brand">lander-lluvia<span class="drop">🌧</span></p>
+    <ul class="nav-list">
+      <li><a href="#profile" class="nav-link"><span class="method">GET</span> /profile</a></li>
+      <li><a href="#experience" class="nav-link"><span class="method">GET</span> /experience</a></li>
+      <li><a href="#education" class="nav-link"><span class="method">GET</span> /education</a></li>
+      <li><a href="#projects" class="nav-link"><span class="method">GET</span> /projects</a></li>
+      <li><a href="#skills" class="nav-link"><span class="method">GET</span> /skills</a></li>
+      <li><a href="#contact" class="nav-link"><span class="method">GET</span> /contact</a></li>
+    </ul>
+    <div class="sidebar-foot">
+      <a href="https://github.com/SrLluvia" target="_blank" rel="noopener">github.com/SrLluvia</a>
+      <a href="https://linkedin.com/in/landerlluvia" target="_blank" rel="noopener">linkedin.com/in/landerlluvia</a>
+      <span>Bilbao, Spain</span>
+    </div>
+  </aside>
+
+  <main>
+    <header class="hero" id="profile">
+      <p class="req"><span class="verb">GET</span> /lander-lluvia HTTP/1.1</p>
+      <p class="resp">200 OK · content-type: human</p>
+      <h1>Lander Lluvia</h1>
+      <p class="role">Backend Software Developer</p>
+      <p class="contact-row">
+        <span>Bilbao, Spain</span>
+        <a href="mailto:landergll99@gmail.com">landergll99@gmail.com</a>
+        <a href="tel:+34655818157">+34 655 81 81 57</a>
+      </p>
+      <p class="lede">Computer engineer with experience in backend development and API design using Java, Spring Boot and Python. Specialised in REST architecture design, automated testing and database integration, with additional knowledge of data engineering — interested in building efficient, scalable backend systems.</p>
+    </header>
+
+    <section id="experience">
+      <div class="endpoint-tag"><span class="badge">GET /experience</span><span class="badge status">200 OK</span></div>
+      <h2>Experience</h2>
+
+      <div class="role-card">
+        <div class="rc-head">
+          <h3>Backend Developer — SDG Group</h3>
+          <span class="dates">Jan 2025 – Present</span>
+        </div>
+        <p class="org">Santiago de Compostela</p>
+        <ul>
+          <li>Sole backend developer on a Client and Therapist Management API: 50+ endpoints, Snowflake integration, OAuth authentication and an OpenAPI specification, used by 100+ users.</li>
+          <li>Built Google Cloud Functions providing shared services to multiple concurrent microservices, integrating BigQuery, Cloud Tasks and Firestore.</li>
+          <li>Designed and implemented REST APIs to client-specific architectures, with automated test coverage.</li>
+          <li>Developed a security middleware API for validation and authentication against Azure/EntraID.</li>
+        </ul>
+        <p class="stack">Java · Spring Boot · Python · FastAPI · Swagger · JUnit · Mockito · PyTest · Oracle · PL/SQL · Docker</p>
+      </div>
+
+      <div class="role-card">
+        <div class="rc-head">
+          <h3>Data Analyst — SDG Group</h3>
+          <span class="dates">Sept 2023 – Dec 2024</span>
+        </div>
+        <p class="org">Santiago de Compostela</p>
+        <ul>
+          <li>Designed, built and maintained ETL processes.</li>
+          <li>Maintained and optimised the data warehouse.</li>
+        </ul>
+        <p class="stack">PowerCenter · bash · Oracle · Snowflake · dbt</p>
+      </div>
+
+      <div class="role-card">
+        <div class="rc-head">
+          <h3>Odoo ERP Developer — Digital 5</h3>
+          <span class="dates">Jun 2018 – Jun 2019</span>
+        </div>
+        <p class="org">Bilbao</p>
+        <ul>
+          <li>Dual work-study training (FP DUAL) during the second year of vocational training.</li>
+          <li>Developed small and medium custom modules for ERP.</li>
+        </ul>
+        <p class="stack">Python · SQL</p>
+      </div>
+    </section>
+
+    <section id="education">
+      <div class="endpoint-tag"><span class="badge">GET /education</span><span class="badge status">200 OK</span></div>
+      <h2>Education &amp; certifications</h2>
+
+      <div class="edu-item">
+        <div>
+          <p class="school">Universidad de Vigo</p>
+          <p class="deg">Bachelor's Degree in Computer Engineering</p>
+        </div>
+        <span class="when">Sept 2019 – Jun 2023</span>
+      </div>
+      <div class="edu-item">
+        <div>
+          <p class="school">Vilniaus Kolegija — Erasmus+</p>
+          <p class="deg">Bachelor's Degree in Computer Engineering, Vilnius</p>
+        </div>
+        <span class="when">Sept 2021 – Jan 2022</span>
+      </div>
+      <div class="edu-item">
+        <div>
+          <p class="school">CIFP Tartanga LHII, Barakaldo</p>
+          <p class="deg">Higher Vocational Training, Multiplatform Application Development</p>
+        </div>
+        <span class="when">Sept 2017 – Jun 2019</span>
+      </div>
+      <div class="edu-item">
+        <div>
+          <p class="school">Trinity College London</p>
+          <p class="deg">English — B2 level</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="projects">
+      <div class="endpoint-tag"><span class="badge">GET /projects</span><span class="badge status">200 OK</span></div>
+      <h2>Projects</h2>
+
+      <div class="project-card">
+        <div class="pc-head">
+          <a class="name" href="https://github.com/SrLluvia/FastRiftStatsAPI" target="_blank" rel="noopener">FastRiftStatsAPI</a>
+          <span class="lang">Python</span>
+        </div>
+        <p class="note">API built to explore Redis as a caching layer for external data, cutting repeated calls and response times.</p>
+      </div>
+
+      <div class="project-card">
+        <div class="pc-head">
+          <a class="name" href="https://github.com/SrLluvia/NodeForest" target="_blank" rel="noopener">NodeForest</a>
+          <span class="lang">Kotlin</span>
+        </div>
+        <p class="note">Visual representation tool for binary trees, built to inspect their structure and traversal step by step.</p>
+      </div>
+
+      <p class="more-projects">See the rest of the repositories on <a href="https://github.com/SrLluvia?tab=repositories" target="_blank" rel="noopener">github.com/SrLluvia</a>.</p>
+    </section>
+
+    <section id="skills">
+      <div class="endpoint-tag"><span class="badge">GET /skills</span><span class="badge status">200 OK</span></div>
+      <h2>Skills</h2>
+      <div class="skill-groups">
+        <div class="skill-group">
+          <h4>Languages</h4>
+          <div class="chips"><span class="chip">Java</span><span class="chip">Python</span><span class="chip">JavaScript</span></div>
+        </div>
+        <div class="skill-group">
+          <h4>Frameworks</h4>
+          <div class="chips"><span class="chip">Spring Boot</span><span class="chip">FastAPI</span><span class="chip">Node.js</span></div>
+        </div>
+        <div class="skill-group">
+          <h4>Databases</h4>
+          <div class="chips"><span class="chip">PostgreSQL</span><span class="chip">MySQL</span><span class="chip">Oracle</span><span class="chip">PL/SQL</span></div>
+        </div>
+        <div class="skill-group">
+          <h4>Testing</h4>
+          <div class="chips"><span class="chip">JUnit</span><span class="chip">Mockito</span><span class="chip">PyTest</span></div>
+        </div>
+        <div class="skill-group">
+          <h4>Infrastructure</h4>
+          <div class="chips"><span class="chip">Docker</span><span class="chip">CI/CD</span></div>
+        </div>
+        <div class="skill-group">
+          <h4>Tools</h4>
+          <div class="chips"><span class="chip">Git</span><span class="chip">Linux</span><span class="chip">Postman</span><span class="chip">Jira</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact">
+      <div class="endpoint-tag"><span class="badge">GET /contact</span><span class="badge status">200 OK</span></div>
+      <h2>Contact</h2>
+      <div class="contact-block">
+        <ul class="contact-list">
+          <li><span class="k">email</span><a href="mailto:landergll99@gmail.com">landergll99@gmail.com</a></li>
+          <li><span class="k">phone</span><a href="tel:+34655818157">+34 655 81 81 57</a></li>
+          <li><span class="k">github</span><a href="https://github.com/SrLluvia" target="_blank" rel="noopener">github.com/SrLluvia</a></li>
+          <li><span class="k">linkedin</span><a href="https://linkedin.com/in/landerlluvia" target="_blank" rel="noopener">linkedin.com/in/landerlluvia</a></li>
+          <li><span class="k">location</span><span>Bilbao, Spain</span></li>
+        </ul>
+      </div>
+    </section>
+  </main>
+</div>
+
+<footer>Built with HTML &amp; CSS · hosted on GitHub Pages</footer>
+
+<script>
+  (function(){
+    var links = document.querySelectorAll('.nav-link');
+    var sections = Array.prototype.map.call(
+      document.querySelectorAll('main section, main header'),
+      function(el){ return el; }
+    );
+    function setActive(id){
+      links.forEach(function(a){
+        a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+      });
+    }
+    if ('IntersectionObserver' in window){
+      var obs = new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          if (entry.isIntersecting) setActive(entry.target.id);
+        });
+      }, { rootMargin: '-40% 0px -50% 0px' });
+      sections.forEach(function(s){ obs.observe(s); });
+    }
+  })();
+</script>
+
+</body>
+</html>
